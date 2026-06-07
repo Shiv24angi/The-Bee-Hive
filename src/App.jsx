@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Menu, X, ArrowRight, ShieldCheck, Heart, Mail, Info, CheckCircle2, ChevronRight, PenTool } from 'lucide-react';
 import { initialPublications, initialSubmissions } from './data/mockData';
+import { supabase } from './supabaseClient';
 
 // Import Pages
 import Home from './pages/Home';
@@ -17,36 +18,83 @@ export default function App() {
   const [theme, setTheme] = useState(() => localStorage.getItem('theme') || 'light');
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Stateful Data (for interactive live demo!)
-  const [publications, setPublications] = useState(() => {
-    const saved = localStorage.getItem('beehive_pubs_real');
-    return saved ? JSON.parse(saved) : initialPublications;
-  });
-  
-  const [submissions, setSubmissions] = useState(() => {
-    const saved = localStorage.getItem('beehive_subs_real');
-    return saved ? JSON.parse(saved) : initialSubmissions;
-  });
-
-  const [archive, setArchive] = useState(() => {
-    const saved = localStorage.getItem('beehive_archive_real');
-    return saved ? JSON.parse(saved) : [];
-  });
+  // Stateful Data (from Supabase cloud database with LocalStorage backup)
+  const [publications, setPublications] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
+  const [archive, setArchive] = useState([]);
 
   // Toast notifications state
   const [toasts, setToasts] = useState([]);
 
-  // Save states to localStorage to persist user interactions during testing
+  // Load initial data on mount
   useEffect(() => {
-    localStorage.setItem('beehive_pubs_real', JSON.stringify(publications));
+    const fetchData = async () => {
+      if (supabase) {
+        try {
+          // Fetch publications
+          const { data: pubs, error: pubsError } = await supabase
+            .from('publications')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (pubsError) throw pubsError;
+          setPublications(pubs || []);
+
+          // Fetch submissions
+          const { data: subs, error: subsError } = await supabase
+            .from('submissions')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (subsError) throw subsError;
+          setSubmissions(subs || []);
+
+          // Fetch archive
+          const { data: archs, error: archsError } = await supabase
+            .from('archive')
+            .select('*')
+            .order('created_at', { ascending: false });
+          if (archsError) throw archsError;
+          setArchive(archs || []);
+        } catch (err) {
+          console.error("Error loading data from Supabase:", err);
+          addToast("Database connection offline. Using local browser backup.", "error");
+          loadFallback();
+        }
+      } else {
+        loadFallback();
+      }
+    };
+
+    const loadFallback = () => {
+      const savedPubs = localStorage.getItem('beehive_pubs_real');
+      setPublications(savedPubs ? JSON.parse(savedPubs) : initialPublications);
+
+      const savedSubs = localStorage.getItem('beehive_subs_real');
+      setSubmissions(savedSubs ? JSON.parse(savedSubs) : initialSubmissions);
+
+      const savedArchive = localStorage.getItem('beehive_archive_real');
+      setArchive(savedArchive ? JSON.parse(savedArchive) : []);
+    };
+
+    fetchData();
+  }, []);
+
+  // Sync states to localStorage as a cache/backup
+  useEffect(() => {
+    if (publications && publications.length > 0) {
+      localStorage.setItem('beehive_pubs_real', JSON.stringify(publications));
+    }
   }, [publications]);
 
   useEffect(() => {
-    localStorage.setItem('beehive_subs_real', JSON.stringify(submissions));
+    if (submissions && submissions.length > 0) {
+      localStorage.setItem('beehive_subs_real', JSON.stringify(submissions));
+    }
   }, [submissions]);
 
   useEffect(() => {
-    localStorage.setItem('beehive_archive_real', JSON.stringify(archive));
+    if (archive && archive.length > 0) {
+      localStorage.setItem('beehive_archive_real', JSON.stringify(archive));
+    }
   }, [archive]);
 
   // Apply dark mode theme attribute to html tag
@@ -77,53 +125,116 @@ export default function App() {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  // State modifiers for live interactivity
-  const handleLikePublication = (pubId) => {
+  // State modifiers for live interactivity (synced to Supabase/localStorage)
+  const handleLikePublication = async (pubId) => {
+    let updatedLikes = 0;
     setPublications(prev => prev.map(pub => {
       if (pub.id === pubId) {
-        return { ...pub, likes: pub.likes + 1 };
+        updatedLikes = pub.likes + 1;
+        return { ...pub, likes: updatedLikes };
       }
       return pub;
     }));
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('publications')
+          .update({ likes: updatedLikes })
+          .eq('id', pubId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error updating likes on Supabase:", err);
+      }
+    }
   };
 
-  const handleAddComment = (pubId, comment) => {
+  const handleAddComment = async (pubId, comment) => {
+    let updatedComments = [];
     setPublications(prev => prev.map(pub => {
       if (pub.id === pubId) {
         const comments = pub.comments || [];
-        return { ...pub, comments: [...comments, comment] };
+        updatedComments = [...comments, comment];
+        return { ...pub, comments: updatedComments };
       }
       return pub;
     }));
     addToast("Comment posted successfully!", "success");
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('publications')
+          .update({ comments: updatedComments })
+          .eq('id', pubId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error adding comment on Supabase:", err);
+      }
+    }
   };
 
-  const handleAddSubmission = (submission, redirectPage = null) => {
+  const handleAddSubmission = async (submission, redirectPage = null) => {
     if (submission) {
       setSubmissions(prev => [submission, ...prev]);
+      if (supabase) {
+        try {
+          const { error } = await supabase
+            .from('submissions')
+            .insert([submission]);
+          if (error) throw error;
+        } catch (err) {
+          console.error("Error writing submission to Supabase:", err);
+          addToast("Database error. Saved to local backup only.", "error");
+        }
+      }
     }
     if (redirectPage) {
       handleNavigate(redirectPage);
     }
   };
 
-  const handleUpdateSubmissionStatus = (subId, newStatus) => {
+  const handleUpdateSubmissionStatus = async (subId, newStatus) => {
     setSubmissions(prev => prev.map(sub => {
       if (sub.id === subId) {
         return { ...sub, status: newStatus };
       }
       return sub;
     }));
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('submissions')
+          .update({ status: newStatus })
+          .eq('id', subId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error updating status on Supabase:", err);
+      }
+    }
   };
 
-  const handleDeletePublication = (pubId) => {
+  const handleDeletePublication = async (pubId) => {
     setPublications(prev => prev.filter(pub => pub.id !== pubId));
     addToast("Publication deleted successfully.", "info");
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('publications')
+          .delete()
+          .eq('id', pubId);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error deleting publication on Supabase:", err);
+      }
+    }
   };
 
-  const handlePublishSubmission = (submission) => {
+  const handlePublishSubmission = async (submission) => {
     // 1. Mark status as Published
-    handleUpdateSubmissionStatus(submission.id, 'Published');
+    await handleUpdateSubmissionStatus(submission.id, 'Published');
 
     // 2. Add to publications catalogue
     const newPub = {
@@ -135,7 +246,7 @@ export default function App() {
       category: submission.category,
       excerpt: "By " + submission.name,
       content: submission.content,
-      avatarUrl: submission.avatarUrl || "", // Pass uploaded avatar
+      avatarUrl: submission.avatarUrl || "",
       coverUrl: "",
       coverColor: submission.category === 'Poetries' || submission.category === 'Poetry' ? 'var(--honey-gold-light)' : 'var(--forest-green-light)',
       readTime: "3 min read",
@@ -144,6 +255,47 @@ export default function App() {
     };
 
     setPublications(prev => [newPub, ...prev]);
+
+    if (supabase) {
+      try {
+        const { error } = await supabase
+          .from('publications')
+          .insert([newPub]);
+        if (error) throw error;
+      } catch (err) {
+        console.error("Error saving new publication to Supabase:", err);
+      }
+    }
+  };
+
+  const handleSetArchive = async (value) => {
+    if (typeof value === 'function') {
+      setArchive(prev => {
+        const next = value(prev);
+        if (next.length > prev.length && supabase) {
+          const addedItem = next[0];
+          supabase
+            .from('archive')
+            .insert([addedItem])
+            .catch(err => {
+              console.error("Error writing archive to Supabase:", err);
+            });
+        }
+        return next;
+      });
+    } else {
+      setArchive(value);
+      if (supabase && Array.isArray(value)) {
+        try {
+          const { error } = await supabase
+            .from('archive')
+            .insert(value);
+          if (error) throw error;
+        } catch (err) {
+          console.error("Error batch writing archive to Supabase:", err);
+        }
+      }
+    }
   };
 
   // Route Renderer
@@ -154,11 +306,7 @@ export default function App() {
           <Home 
             onNavigate={handleNavigate} 
             onReadPublication={(pub) => {
-              // Open publications page and automatically trigger the modal by some means
-              // Let's pass the pub to Publications page
               handleNavigate('publications');
-              // Let's simulate a click or open trigger by saving pubId to state or let Publications handle it.
-              // To make it easy, we store the selected pub in session storage
               sessionStorage.setItem('open_pub_id', pub.id);
             }} 
           />
@@ -191,7 +339,7 @@ export default function App() {
             onUpdateStatus={handleUpdateSubmissionStatus} 
             onPublish={handlePublishSubmission} 
             archive={archive}
-            setArchive={setArchive}
+            setArchive={handleSetArchive}
             addToast={addToast} 
           />
         );
