@@ -1,15 +1,15 @@
 import React, { useState, useMemo } from 'react';
 import { Eye, Check, X, FileText, Upload, CheckCircle, Clock, Search, Trash2 } from 'lucide-react';
 
-export default function Dashboard({ 
-  submissions, 
-  publications, 
-  onDeletePublication, 
-  onUpdateStatus, 
-  onPublish, 
-  archive, 
-  setArchive, 
-  addToast 
+export default function Dashboard({
+  submissions,
+  publications,
+  onDeletePublication,
+  onUpdateStatus,
+  onPublish,
+  archive,
+  setArchive,
+  addToast
 }) {
   const [statusFilter, setStatusFilter] = useState('All');
   const [searchQuery, setSearchQuery] = useState('');
@@ -31,7 +31,7 @@ export default function Dashboard({
 
   // Hardcoded Board Members
   const BOARD_MEMBERS = {
-    'neiljamespeters12@gmail.co': 'MiaLikesCoffee!09',
+    'neiljamespeters12@gmail.com': 'MiaLikesCoffee!09',
     'sanaavig@gmail.com': 'sanaaskids0302',
     'dograpakhi3011@gmail.com': 'hellomellow3011',
     'harshita.srikrishna@gmail.com': 'BlueBerry',
@@ -74,11 +74,11 @@ export default function Dashboard({
   const filteredSubmissions = useMemo(() => {
     return submissions.filter(sub => {
       const matchesStatus = statusFilter === 'All' || sub.status === statusFilter;
-      const matchesSearch = 
+      const matchesSearch =
         sub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sub.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         sub.category.toLowerCase().includes(searchQuery.toLowerCase());
-      
+
       return matchesStatus && matchesSearch;
     });
   }, [submissions, statusFilter, searchQuery]);
@@ -152,7 +152,7 @@ export default function Dashboard({
           </p>
           <div className="denied-box">
             <p>
-              This chamber of the hive is reserved strictly for Queen Bees and Editor Bees. 
+              This chamber of the hive is reserved strictly for Queen Bees and Editor Bees.
               If you aren't a registered member of the Editorial Board, you cannot browse or manage the submission queues.
             </p>
             <p style={{ marginTop: '0.75rem', fontWeight: 'bold', fontStyle: 'italic' }}>
@@ -178,7 +178,7 @@ export default function Dashboard({
           </div>
           <h2 className="auth-title">Editor Authentication</h2>
           <p className="auth-subtitle">Enter your board credentials to access the editorial queue.</p>
-          
+
           <form onSubmit={handleLogin} className="auth-form">
             <div className="form-group" style={{ marginBottom: '1.25rem', textAlign: 'left' }}>
               <label htmlFor="auth-email" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Board Email</label>
@@ -192,7 +192,7 @@ export default function Dashboard({
                 required
               />
             </div>
-            
+
             <div className="form-group" style={{ marginBottom: '1.5rem', textAlign: 'left' }}>
               <label htmlFor="auth-password" style={{ display: 'block', fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text-secondary)' }}>Secret Key</label>
               <input
@@ -205,12 +205,12 @@ export default function Dashboard({
                 required
               />
             </div>
-            
+
             <button type="submit" className="btn btn-primary" style={{ width: '100%' }}>
               Unlock Dashboard
             </button>
           </form>
-          
+
           <div className="auth-hint" style={{ marginTop: '2rem', paddingTop: '1.25rem', borderTop: '1px solid var(--border)' }}>
             <p style={{ fontSize: '0.8rem', color: 'var(--text-secondary)', textAlign: 'center' }}>
               💡 Hint for testing: Use <code>neiljamespeters12@gmail.co</code> / <code>MiaLikesCoffee!09</code>
@@ -245,7 +245,7 @@ export default function Dashboard({
             <p className="dash-stat-label">Total Submissions</p>
           </div>
         </div>
-        
+
         <div className="dash-stat-card" style={{ borderLeft: '4px solid var(--accent)' }}>
           <div className="dash-stat-icon" style={{ color: 'var(--accent-dark)' }}>
             <Clock size={20} />
@@ -279,48 +279,48 @@ export default function Dashboard({
 
       {/* Navigation Tabs */}
       <div className="dashboard-tabs" style={{ display: 'flex', gap: '0.5rem', borderBottom: '1px solid var(--border)', marginBottom: '2.5rem' }}>
-        <button 
+        <button
           className={`btn-tab ${activeTab === 'submissions' ? 'active' : ''}`}
           onClick={() => setActiveTab('submissions')}
-          style={{ 
-            padding: '0.75rem 1.25rem', 
-            border: 'none', 
-            background: 'none', 
-            borderBottom: activeTab === 'submissions' ? '3px solid var(--accent)' : '3px solid transparent', 
-            color: activeTab === 'submissions' ? 'var(--primary)' : 'var(--text-secondary)', 
-            fontWeight: 700, 
+          style={{
+            padding: '0.75rem 1.25rem',
+            border: 'none',
+            background: 'none',
+            borderBottom: activeTab === 'submissions' ? '3px solid var(--accent)' : '3px solid transparent',
+            color: activeTab === 'submissions' ? 'var(--primary)' : 'var(--text-secondary)',
+            fontWeight: 700,
             cursor: 'pointer',
             fontSize: '0.95rem'
           }}
         >
           Submissions Queue
         </button>
-        <button 
+        <button
           className={`btn-tab ${activeTab === 'publications' ? 'active' : ''}`}
           onClick={() => setActiveTab('publications')}
-          style={{ 
-            padding: '0.75rem 1.25rem', 
-            border: 'none', 
-            background: 'none', 
-            borderBottom: activeTab === 'publications' ? '3px solid var(--accent)' : '3px solid transparent', 
-            color: activeTab === 'publications' ? 'var(--primary)' : 'var(--text-secondary)', 
-            fontWeight: 700, 
+          style={{
+            padding: '0.75rem 1.25rem',
+            border: 'none',
+            background: 'none',
+            borderBottom: activeTab === 'publications' ? '3px solid var(--accent)' : '3px solid transparent',
+            color: activeTab === 'publications' ? 'var(--primary)' : 'var(--text-secondary)',
+            fontWeight: 700,
             cursor: 'pointer',
             fontSize: '0.95rem'
           }}
         >
           Live Publications ({publications.length})
         </button>
-        <button 
+        <button
           className={`btn-tab ${activeTab === 'compile' ? 'active' : ''}`}
           onClick={() => setActiveTab('compile')}
-          style={{ 
-            padding: '0.75rem 1.25rem', 
-            border: 'none', 
-            background: 'none', 
-            borderBottom: activeTab === 'compile' ? '3px solid var(--accent)' : '3px solid transparent', 
-            color: activeTab === 'compile' ? 'var(--primary)' : 'var(--text-secondary)', 
-            fontWeight: 700, 
+          style={{
+            padding: '0.75rem 1.25rem',
+            border: 'none',
+            background: 'none',
+            borderBottom: activeTab === 'compile' ? '3px solid var(--accent)' : '3px solid transparent',
+            color: activeTab === 'compile' ? 'var(--primary)' : 'var(--text-secondary)',
+            fontWeight: 700,
             cursor: 'pointer',
             fontSize: '0.95rem'
           }}
@@ -348,8 +348,8 @@ export default function Dashboard({
                   <Search className="search-icon-inside" size={14} />
                 </div>
 
-                <select 
-                  className="form-control" 
+                <select
+                  className="form-control"
                   style={{ width: '130px', padding: '0.5rem', fontSize: '0.85rem' }}
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -403,26 +403,26 @@ export default function Dashboard({
                         </td>
                         <td>
                           <div className="actions-cell">
-                            <button 
-                              className="btn-icon" 
+                            <button
+                              className="btn-icon"
                               title="Preview Content"
                               onClick={() => setActivePreview(sub)}
                             >
                               <Eye size={14} />
                             </button>
-                            
+
                             {sub.status === 'Pending' && (
                               <>
-                                <button 
-                                  className="btn-icon btn-approve" 
+                                <button
+                                  className="btn-icon btn-approve"
                                   title="Approve & Publish"
                                   onClick={() => handleApprove(sub)}
                                   style={{ color: '#1E5C36' }}
                                 >
                                   <Check size={14} />
                                 </button>
-                                <button 
-                                  className="btn-icon btn-reject" 
+                                <button
+                                  className="btn-icon btn-reject"
                                   title="Reject"
                                   onClick={() => handleReject(sub.id)}
                                 >
@@ -506,8 +506,8 @@ export default function Dashboard({
                         <td style={{ fontSize: '0.85rem' }}>{pub.date}</td>
                         <td style={{ fontSize: '0.85rem' }}>❤️ {pub.likes} Likes • 💬 {(pub.comments || []).length} Comments</td>
                         <td>
-                          <button 
-                            className="btn-icon btn-reject" 
+                          <button
+                            className="btn-icon btn-reject"
                             title="Delete Publication"
                             onClick={() => {
                               if (window.confirm(`Are you sure you want to delete the publication "${pub.title}"?`)) {
@@ -599,7 +599,7 @@ export default function Dashboard({
                 <X size={20} />
               </button>
             </div>
-            
+
             <div className="reader-modal-body" style={{ padding: '2rem 3rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem', paddingBottom: '1rem', borderBottom: '1px solid var(--border)' }}>
                 {activePreview.avatarUrl && (
@@ -610,7 +610,7 @@ export default function Dashboard({
                   <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>{activePreview.email} • {activePreview.date}</p>
                 </div>
               </div>
-              
+
               <h3 style={{ fontSize: '1.6rem', marginBottom: '1rem', textAlign: 'left' }}>{activePreview.title}</h3>
               <p style={{ fontSize: '0.85rem', color: 'var(--text-secondary)', marginBottom: '1.5rem', textAlign: 'left' }}>
                 <strong>Category:</strong> {activePreview.category.replace('s', '')}
