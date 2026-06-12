@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import {
   Sun,
   Moon,
   Menu,
   X,
-  ArrowRight,
+  // ArrowRight,
   ShieldCheck,
-  Heart,
+  // Heart,
   Mail,
   Info,
   CheckCircle2,
-  ChevronRight,
-  PenTool,
+  // ChevronRight,
+  // PenTool,
 } from "lucide-react";
 import { initialPublications, initialSubmissions } from "./data/mockData";
 import { supabase } from "./supabaseClient";
@@ -40,45 +40,79 @@ export default function App() {
 
   // Toast notifications state
   const [toasts, setToasts] = useState([]);
+  // Toast Notification helper
+  const addToast = (message, type = "success") => {
+    const id = Date.now();
+    setToasts((prev) => [...prev, { id, message, type }]);
 
+    // Auto-remove after 4 seconds
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
   // Load initial data on mount
   useEffect(() => {
     const fetchData = async () => {
-      if (supabase) {
-        try {
-          // Fetch publications
-          const { data: pubs, error: pubsError } = await supabase
-            .from("publications")
-            .select("*")
-            .order("created_at", { ascending: false });
-          if (pubsError) throw pubsError;
-          setPublications(pubs || []);
-
-          // Fetch submissions
-          const { data: subs, error: subsError } = await supabase
-            .from("submissions")
-            .select("*")
-            .order("created_at", { ascending: false });
-          if (subsError) throw subsError;
-          setSubmissions(subs || []);
-
-          // Fetch archive
-          const { data: archs, error: archsError } = await supabase
-            .from("archive")
-            .select("*")
-            .order("created_at", { ascending: false });
-          if (archsError) throw archsError;
-          setArchive(archs || []);
-        } catch (err) {
-          console.error("Error loading data from Supabase:", err);
-          addToast(
-            "Database connection offline. Using local browser backup.",
-            "error",
-          );
-          loadFallback();
-        }
-      } else {
+      if (!supabase) {
         loadFallback();
+        return;
+      }
+
+      // all queries concurrently
+      const [pubsResult, subsResult, archsResult] = await Promise.allSettled([
+        supabase
+          .from("publications")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("submissions")
+          .select("*")
+          .order("created_at", { ascending: false }),
+        supabase
+          .from("archive")
+          .select("*")
+          .order("created_at", { ascending: false }),
+      ]);
+
+      //  Process Publications
+      if (pubsResult.status === "fulfilled" && !pubsResult.value.error) {
+        setPublications(pubsResult.value.data || []);
+      } else {
+        console.error(
+          "Publications fetch failed:",
+          pubsResult.value?.error || pubsResult.reason,
+        );
+        const savedPubs = localStorage.getItem("beehive_pubs_real");
+        setPublications(
+          savedPubs ? JSON.parse(savedPubs) : initialPublications,
+        );
+        addToast("Could not load fresh publications. Using backup.", "error");
+      }
+
+      //  Process Submissions
+      if (subsResult.status === "fulfilled" && !subsResult.value.error) {
+        setSubmissions(subsResult.value.data || []);
+      } else {
+        console.error(
+          "Submissions fetch failed:",
+          subsResult.value?.error || subsResult.reason,
+        );
+        const savedSubs = localStorage.getItem("beehive_subs_real");
+        setSubmissions(savedSubs ? JSON.parse(savedSubs) : initialSubmissions);
+        addToast("Could not load fresh submissions. Using backup.", "error");
+      }
+
+      // 4. Process Archive
+      if (archsResult.status === "fulfilled" && !archsResult.value.error) {
+        setArchive(archsResult.value.data || []);
+      } else {
+        console.error(
+          "Archive fetch failed:",
+          archsResult.value?.error || archsResult.reason,
+        );
+        const savedArchive = localStorage.getItem("beehive_archive_real");
+        setArchive(savedArchive ? JSON.parse(savedArchive) : []);
+        addToast("Could not load fresh archive. Using backup.", "error");
       }
     };
 
@@ -101,17 +135,6 @@ export default function App() {
     document.documentElement.setAttribute("data-theme", theme);
     localStorage.setItem("theme", theme);
   }, [theme]);
-
-  // Toast Notification helper
-  const addToast = (message, type = "success") => {
-    const id = Date.now();
-    setToasts((prev) => [...prev, { id, message, type }]);
-
-    // Auto-remove after 4 seconds
-    setTimeout(() => {
-      setToasts((prev) => prev.filter((t) => t.id !== id));
-    }, 4000);
-  };
 
   const toggleTheme = () => {
     setTheme((prev) => (prev === "light" ? "dark" : "light"));
