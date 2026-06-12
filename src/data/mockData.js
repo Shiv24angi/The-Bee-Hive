@@ -34,11 +34,17 @@ export const editorialBoard = [
   {
     id: "eb-5",
     name: "Harshita Srikrishna",
-    role: "Vice-Preseident",
+    role: "Vice-President",
     bio: "Harshita Srikrishna is the Vice President of the Editorial Board and co-founder of the Bee Hive. She is a voracious reader, dedicated taekwondo player, musician, and enjoys science. Her defining qualities are creativity, determination and perceptiveness. Through the Bee Hive, she hopes to provide a platform where students can express freely without fear of judgement.",
     image: "/members/Harshita.png"
   },
-
+  {
+    id: "eb-6",
+    name: "Pranjal Prakarsh",
+    role: "Vice-President (IT Team)",
+    bio: "Pranjal is the Vice-President of the IT Team. He helped the Editorial Board build their online journal , ensuring the code is sweet as honey and the platform keeps buzzing smoothly fixing occasional bugs as they arise. ",
+    image: "/members/infinotiver.jpg"
+  },
 ];
 
 export const archiveEditions = [];
