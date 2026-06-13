@@ -1,10 +1,12 @@
 import React from 'react';
 import { BookOpen, Send, ArrowRight, Heart, Users, Award, PenTool } from 'lucide-react';
-import { initialPublications } from '../data/mockData';
 
-export default function Home({ onNavigate, onReadPublication }) {
+export default function Home({ publications = [], onNavigate, onReadPublication }) {
   // Get latest 3 publications to show as featured
-  const featuredPublications = initialPublications.slice(0, 3);
+  const featuredPublications = publications.slice(0, 3);
+  
+  const totalPublications = publications.length;
+  const totalContributors = new Set(publications.map(pub => pub.author)).size;
 
   return (
     <div className="home-page fade-in-up">
@@ -102,18 +104,14 @@ export default function Home({ onNavigate, onReadPublication }) {
       {/* Statistics Section */}
       <section className="stats-section">
         <div className="honeycomb-bg" style={{ animation: 'honeycombPulse 8s infinite' }}></div>
-        <div className="stats-grid">
+        <div className="stats-grid" style={{ display: 'flex', justifyContent: 'center', gap: '6rem', flexWrap: 'wrap' }}>
           <div className="stat-item">
-            <span className="stat-number">48+</span>
+            <span className="stat-number">{totalPublications}</span>
             <span className="stat-label">Published Works</span>
           </div>
           <div className="stat-item">
-            <span className="stat-number">30+</span>
+            <span className="stat-number">{totalContributors}</span>
             <span className="stat-label">Contributors</span>
-          </div>
-          <div className="stat-item">
-            <span className="stat-number">12</span>
-            <span className="stat-label">Editions Published</span>
           </div>
         </div>
       </section>

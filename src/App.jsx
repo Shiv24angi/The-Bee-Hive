@@ -139,14 +139,14 @@ export default function App() {
 
   // State modifiers for live interactivity (synced to Supabase/localStorage)
   const handleLikePublication = async (pubId) => {
-    let updatedLikes = 0;
-    setPublications(prev => prev.map(pub => {
-      if (pub.id === pubId) {
-        updatedLikes = pub.likes + 1;
-        return { ...pub, likes: updatedLikes };
-      }
-      return pub;
-    }));
+    const pubToUpdate = publications.find(p => p.id === pubId);
+    if (!pubToUpdate) return;
+    
+    const updatedLikes = (pubToUpdate.likes || 0) + 1;
+
+    setPublications(prev => prev.map(pub => 
+      pub.id === pubId ? { ...pub, likes: updatedLikes } : pub
+    ));
 
     if (supabase) {
       try {
@@ -162,15 +162,14 @@ export default function App() {
   };
 
   const handleAddComment = async (pubId, comment) => {
-    let updatedComments = [];
-    setPublications(prev => prev.map(pub => {
-      if (pub.id === pubId) {
-        const comments = pub.comments || [];
-        updatedComments = [...comments, comment];
-        return { ...pub, comments: updatedComments };
-      }
-      return pub;
-    }));
+    const pubToUpdate = publications.find(p => p.id === pubId);
+    if (!pubToUpdate) return;
+
+    const updatedComments = [...(pubToUpdate.comments || []), comment];
+
+    setPublications(prev => prev.map(pub => 
+      pub.id === pubId ? { ...pub, comments: updatedComments } : pub
+    ));
     addToast("Comment posted successfully!", "success");
 
     if (supabase) {
@@ -316,6 +315,7 @@ export default function App() {
       case 'home':
         return (
           <Home 
+            publications={publications}
             onNavigate={handleNavigate} 
             onReadPublication={(pub) => {
               handleNavigate('publications');
@@ -358,7 +358,7 @@ export default function App() {
       case 'archive':
         return <Archive archive={archive} addToast={addToast} />;
       default:
-        return <Home onNavigate={handleNavigate} />;
+        return <Home publications={publications} onNavigate={handleNavigate} />;
     }
   };
 
