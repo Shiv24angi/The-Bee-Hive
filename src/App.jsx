@@ -81,19 +81,31 @@ export default function App() {
   // Sync states to localStorage as a cache/backup
   useEffect(() => {
     if (publications && publications.length > 0) {
-      localStorage.setItem('beehive_pubs_real', JSON.stringify(publications));
+      try {
+        localStorage.setItem('beehive_pubs_real', JSON.stringify(publications));
+      } catch (err) {
+        console.warn("LocalStorage quota exceeded for publications cache:", err);
+      }
     }
   }, [publications]);
 
   useEffect(() => {
     if (submissions && submissions.length > 0) {
-      localStorage.setItem('beehive_subs_real', JSON.stringify(submissions));
+      try {
+        localStorage.setItem('beehive_subs_real', JSON.stringify(submissions));
+      } catch (err) {
+        console.warn("LocalStorage quota exceeded for submissions cache:", err);
+      }
     }
   }, [submissions]);
 
   useEffect(() => {
     if (archive && archive.length > 0) {
-      localStorage.setItem('beehive_archive_real', JSON.stringify(archive));
+      try {
+        localStorage.setItem('beehive_archive_real', JSON.stringify(archive));
+      } catch (err) {
+        console.warn("LocalStorage quota exceeded for archive cache:", err);
+      }
     }
   }, [archive]);
 
