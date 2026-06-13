@@ -84,7 +84,7 @@ export default function App() {
       try {
         localStorage.setItem('beehive_pubs_real', JSON.stringify(publications));
       } catch (err) {
-        console.warn("LocalStorage quota exceeded for publications cache:", err);
+        // Silently fail if localStorage quota is exceeded
       }
     }
   }, [publications]);
@@ -94,7 +94,7 @@ export default function App() {
       try {
         localStorage.setItem('beehive_subs_real', JSON.stringify(submissions));
       } catch (err) {
-        console.warn("LocalStorage quota exceeded for submissions cache:", err);
+        // Silently fail if localStorage quota is exceeded
       }
     }
   }, [submissions]);
@@ -104,7 +104,7 @@ export default function App() {
       try {
         localStorage.setItem('beehive_archive_real', JSON.stringify(archive));
       } catch (err) {
-        console.warn("LocalStorage quota exceeded for archive cache:", err);
+        // Silently fail if localStorage quota is exceeded
       }
     }
   }, [archive]);
