@@ -34,24 +34,34 @@ export default function App() {
           // Fetch publications
           const { data: pubs, error: pubsError } = await supabase
             .from('publications')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('*');
           if (pubsError) throw pubsError;
-          setPublications(pubs || []);
+          
+          // Sort locally if needed, or rely on id since id contains timestamp
+          const sortedPubs = (pubs || []).sort((a, b) => {
+            const timeA = a.id.split('-').pop();
+            const timeB = b.id.split('-').pop();
+            return timeB - timeA;
+          });
+          setPublications(sortedPubs);
 
           // Fetch submissions
           const { data: subs, error: subsError } = await supabase
             .from('submissions')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('*');
           if (subsError) throw subsError;
-          setSubmissions(subs || []);
+          
+          const sortedSubs = (subs || []).sort((a, b) => {
+            const timeA = a.id.split('-').pop();
+            const timeB = b.id.split('-').pop();
+            return timeB - timeA;
+          });
+          setSubmissions(sortedSubs);
 
           // Fetch archive
           const { data: archs, error: archsError } = await supabase
             .from('archive')
-            .select('*')
-            .order('created_at', { ascending: false });
+            .select('*');
           if (archsError) throw archsError;
           setArchive(archs || []);
         } catch (err) {
