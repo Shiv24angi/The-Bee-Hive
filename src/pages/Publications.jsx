@@ -189,10 +189,12 @@ export default function Publications({ publications, onLikePublication, onAddCom
               </div>
               
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
-                <div className="pub-likes" style={{ fontSize: '1rem' }} onClick={() => {
-                  onLikePublication(activePubReader.id);
+                <div className="pub-likes" style={{ fontSize: '1rem' }} onClick={async () => {
+                  const success = await onLikePublication(activePubReader.id);
                   // Refresh active viewer likes count
-                  setActivePubReader(prev => ({ ...prev, likes: prev.likes + 1 }));
+                  if (success) {
+                    setActivePubReader(prev => ({ ...prev, likes: prev.likes + 1 }));
+                  }
                 }}>
                   <Heart size={18} fill="currentColor" style={{ color: 'var(--accent)' }} />
                   <span>{activePubReader.likes} Likes</span>

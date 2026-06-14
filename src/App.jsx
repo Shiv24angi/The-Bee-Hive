@@ -150,8 +150,17 @@ export default function App() {
   // State modifiers for live interactivity (synced to Supabase/localStorage)
   const handleLikePublication = async (pubId) => {
     const pubToUpdate = publications.find(p => p.id === pubId);
-    if (!pubToUpdate) return;
+    if (!pubToUpdate) return false;
     
+    const likedPubs = JSON.parse(localStorage.getItem('beehive_liked_pubs') || '[]');
+    if (likedPubs.includes(pubId)) {
+      addToast("You have already liked this publication!", "info");
+      return false;
+    }
+
+    likedPubs.push(pubId);
+    localStorage.setItem('beehive_liked_pubs', JSON.stringify(likedPubs));
+
     const updatedLikes = (pubToUpdate.likes || 0) + 1;
 
     setPublications(prev => prev.map(pub => 
@@ -169,6 +178,7 @@ export default function App() {
         console.error("Error updating likes on Supabase:", err);
       }
     }
+    return true;
   };
 
   const handleAddComment = async (pubId, comment) => {
