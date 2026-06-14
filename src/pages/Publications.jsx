@@ -16,7 +16,12 @@ export default function Publications({ publications, onLikePublication, onAddCom
   // Filter and Search logic combined
   const filteredPublications = useMemo(() => {
     return publications.filter((pub) => {
-      const matchesCategory = selectedCategory === 'All' || pub.category.toLowerCase() === selectedCategory.toLowerCase();
+      const normalizedPubCat = pub.category.toLowerCase().replace(/s$/, '').replace(/ie$/, 'y');
+      const normalizedSelCat = selectedCategory.toLowerCase().replace(/s$/, '').replace(/ie$/, 'y');
+      const matchesCategory = selectedCategory === 'All' || 
+        pub.category.toLowerCase() === selectedCategory.toLowerCase() ||
+        normalizedPubCat === normalizedSelCat ||
+        (selectedCategory === 'Poetry' && (pub.category.toLowerCase() === 'poetrys' || pub.category.toLowerCase() === 'poetries'));
       const matchesSearch = 
         pub.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
         pub.author.toLowerCase().includes(searchQuery.toLowerCase()) ||

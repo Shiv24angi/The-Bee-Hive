@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Eye, Check, X, FileText, Upload, CheckCircle, Clock, Search, Trash2 } from 'lucide-react';
+import { Eye, Check, X, FileText, Upload, CheckCircle, Clock, Search, Trash2, Database } from 'lucide-react';
 
 export default function Dashboard({
   submissions,
@@ -67,8 +67,14 @@ export default function Dashboard({
     const approved = submissions.filter(s => s.status === 'Approved' || s.status === 'Published').length;
     const rejected = submissions.filter(s => s.status === 'Rejected').length;
 
-    return { total, pending, approved, rejected };
-  }, [submissions]);
+    // Calculate approximate storage used
+    const bytesSubmissions = new Blob([JSON.stringify(submissions)]).size;
+    const bytesPublications = new Blob([JSON.stringify(publications)]).size;
+    const totalBytes = bytesSubmissions + bytesPublications;
+    const megabytes = (totalBytes / (1024 * 1024)).toFixed(2);
+
+    return { total, pending, approved, rejected, storageMB: megabytes };
+  }, [submissions, publications]);
 
   // Combined filters for Submissions
   const filteredSubmissions = useMemo(() => {
@@ -273,6 +279,16 @@ export default function Dashboard({
           <div>
             <p className="dash-stat-value">{stats.rejected}</p>
             <p className="dash-stat-label">Rejected</p>
+          </div>
+        </div>
+
+        <div className="dash-stat-card" style={{ borderLeft: '4px solid #3B82F6' }}>
+          <div className="dash-stat-icon" style={{ color: '#3B82F6' }}>
+            <Database size={20} />
+          </div>
+          <div>
+            <p className="dash-stat-value">{stats.storageMB} MB</p>
+            <p className="dash-stat-label">Supabase Storage</p>
           </div>
         </div>
       </div>

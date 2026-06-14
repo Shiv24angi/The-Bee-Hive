@@ -43,7 +43,7 @@ export default function About({ addToast }) {
       <section className="editorial-section" style={{ backgroundColor: 'var(--primary-bg)' }}>
         <div style={{ textAlign: 'center', marginBottom: '3rem' }}>
           <span className="section-label">Editorial Board</span>
-          <h2 className="section-title">Meet the Editors</h2>
+          <h2 className="section-title">The Worker Bees</h2>
           <p style={{ color: 'var(--text-secondary)', maxWidth: '600px', margin: '0.5rem auto 0' }}>
             The dedicated team of students who review, select, and compile each edition of The Bee Hive.
           </p>
