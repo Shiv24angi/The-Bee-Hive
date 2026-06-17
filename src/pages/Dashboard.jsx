@@ -635,6 +635,20 @@ export default function Dashboard({
               <div style={{ whiteSpace: 'pre-wrap', fontFamily: 'monospace', padding: '1.25rem', background: 'var(--primary-bg)', borderRadius: '4px', border: '1px solid var(--border)', fontSize: '0.9rem', lineHeight: 1.6, textAlign: 'left' }}>
                 {activePreview.content}
               </div>
+
+              {activePreview.fileUrl && (
+                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                  {activePreview.fileName?.toLowerCase().endsWith('.pdf') ? (
+                    <iframe src={activePreview.fileUrl} title={activePreview.fileName} style={{ width: '100%', height: '500px', border: 'none', borderRadius: '4px' }} />
+                  ) : activePreview.fileName?.toLowerCase().match(/\.(jpeg|jpg|png|gif)$/) ? (
+                    <img src={activePreview.fileUrl} alt={activePreview.fileName} style={{ maxWidth: '100%', maxHeight: '500px', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : (
+                    <div style={{ padding: '1rem', background: 'var(--primary-bg)', border: '1px solid var(--border)', borderRadius: '4px' }}>
+                      <a href={activePreview.fileUrl} download={activePreview.fileName} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 'bold' }}>📄 Download Attached File ({activePreview.fileName})</a>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="reader-modal-header" style={{ borderBottom: 'none', borderTop: '1px solid var(--border)', padding: '1rem 2rem', justifyContent: 'flex-end', gap: '1rem' }}>

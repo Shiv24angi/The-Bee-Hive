@@ -277,6 +277,8 @@ export default function App() {
       category: submission.category,
       excerpt: "By " + submission.name,
       content: submission.content,
+      fileName: submission.fileName || "",
+      fileUrl: submission.fileUrl || "",
       avatarUrl: submission.avatarUrl || "",
       coverUrl: "",
       coverColor: submission.category === 'Poetries' || submission.category === 'Poetry' ? 'var(--honey-gold-light)' : 'var(--forest-green-light)',

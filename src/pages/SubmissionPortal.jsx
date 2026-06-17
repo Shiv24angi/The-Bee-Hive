@@ -12,6 +12,7 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
     content: ''
   });
   const [file, setFile] = useState(null);
+  const [fileUrl, setFileUrl] = useState(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [errors, setErrors] = useState({});
   const [isSubmitted, setIsSubmitted] = useState(false);
@@ -112,6 +113,12 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
     }
 
     setFile(selectedFile);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      setFileUrl(e.target.result);
+    };
+    reader.readAsDataURL(selectedFile);
+
     // Clear file error if any
     setErrors(prev => {
       const copy = { ...prev };
@@ -124,6 +131,7 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
   const handleRemoveFile = (e) => {
     e.stopPropagation();
     setFile(null);
+    setFileUrl(null);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -141,6 +149,7 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
         avatarUrl: formData.avatarUrl,
         content: formData.content,
         fileName: file.name,
+        fileUrl: fileUrl,
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
         status: "Pending"
       };
@@ -164,6 +173,7 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
       content: ''
     });
     setFile(null);
+    setFileUrl(null);
     setIsSubmitted(false);
     setErrors({});
   };

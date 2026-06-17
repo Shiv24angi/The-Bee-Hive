@@ -188,6 +188,20 @@ export default function Publications({ publications, onLikePublication, onAddCom
                 {activePubReader.content}
               </div>
               
+              {activePubReader.fileUrl && (
+                <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
+                  {activePubReader.fileName?.toLowerCase().endsWith('.pdf') ? (
+                    <iframe src={activePubReader.fileUrl} title={activePubReader.fileName} style={{ width: '100%', height: '500px', border: 'none', borderRadius: '4px' }} />
+                  ) : activePubReader.fileName?.toLowerCase().match(/\.(jpeg|jpg|png|gif)$/) ? (
+                    <img src={activePubReader.fileUrl} alt={activePubReader.fileName} style={{ maxWidth: '100%', maxHeight: '500px', objectFit: 'contain', borderRadius: '4px' }} />
+                  ) : (
+                    <div style={{ padding: '1rem', background: 'var(--primary-bg)', border: '1px solid var(--border)', borderRadius: '4px' }}>
+                      <a href={activePubReader.fileUrl} download={activePubReader.fileName} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 'bold' }}>📄 Download Attached File ({activePubReader.fileName})</a>
+                    </div>
+                  )}
+                </div>
+              )}
+
               <div style={{ display: 'flex', gap: '1.5rem', marginTop: '3rem', paddingTop: '1.5rem', borderTop: '1px solid var(--border)', color: 'var(--text-secondary)' }}>
                 <div className="pub-likes" style={{ fontSize: '1rem' }} onClick={async () => {
                   const success = await onLikePublication(activePubReader.id);
