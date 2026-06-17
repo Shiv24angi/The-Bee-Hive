@@ -190,10 +190,12 @@ export default function Publications({ publications, onLikePublication, onAddCom
               
               {activePubReader.fileUrl && (
                 <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                  {activePubReader.fileName?.toLowerCase().endsWith('.pdf') ? (
-                    <iframe src={activePubReader.fileUrl} title={activePubReader.fileName} style={{ width: '100%', height: '500px', border: 'none', borderRadius: '4px' }} />
-                  ) : activePubReader.fileName?.toLowerCase().match(/\.(jpeg|jpg|png|gif)$/) ? (
-                    <img src={activePubReader.fileUrl} alt={activePubReader.fileName} style={{ maxWidth: '100%', maxHeight: '500px', objectFit: 'contain', borderRadius: '4px' }} />
+                  {activePubReader.fileUrl.startsWith('data:application/pdf') ? (
+                    <object data={activePubReader.fileUrl} type="application/pdf" width="100%" height="600px" style={{ border: 'none', borderRadius: '4px' }}>
+                      <p>Your browser doesn't support embedded PDFs. <a href={activePubReader.fileUrl} download={activePubReader.fileName} style={{ color: 'var(--accent)' }}>Download it here</a>.</p>
+                    </object>
+                  ) : activePubReader.fileUrl.startsWith('data:image/') ? (
+                    <img src={activePubReader.fileUrl} alt={activePubReader.fileName} style={{ maxWidth: '100%', maxHeight: '600px', objectFit: 'contain', borderRadius: '4px' }} />
                   ) : (
                     <div style={{ padding: '1rem', background: 'var(--primary-bg)', border: '1px solid var(--border)', borderRadius: '4px' }}>
                       <a href={activePubReader.fileUrl} download={activePubReader.fileName} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 'bold' }}>📄 Download Attached File ({activePubReader.fileName})</a>

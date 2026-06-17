@@ -638,10 +638,12 @@ export default function Dashboard({
 
               {activePreview.fileUrl && (
                 <div style={{ marginTop: '1.5rem', textAlign: 'center' }}>
-                  {activePreview.fileName?.toLowerCase().endsWith('.pdf') ? (
-                    <iframe src={activePreview.fileUrl} title={activePreview.fileName} style={{ width: '100%', height: '500px', border: 'none', borderRadius: '4px' }} />
-                  ) : activePreview.fileName?.toLowerCase().match(/\.(jpeg|jpg|png|gif)$/) ? (
-                    <img src={activePreview.fileUrl} alt={activePreview.fileName} style={{ maxWidth: '100%', maxHeight: '500px', objectFit: 'contain', borderRadius: '4px' }} />
+                  {activePreview.fileUrl.startsWith('data:application/pdf') ? (
+                    <object data={activePreview.fileUrl} type="application/pdf" width="100%" height="600px" style={{ border: 'none', borderRadius: '4px' }}>
+                      <p>Your browser doesn't support embedded PDFs. <a href={activePreview.fileUrl} download={activePreview.fileName} style={{ color: 'var(--accent)' }}>Download it here</a>.</p>
+                    </object>
+                  ) : activePreview.fileUrl.startsWith('data:image/') ? (
+                    <img src={activePreview.fileUrl} alt={activePreview.fileName} style={{ maxWidth: '100%', maxHeight: '600px', objectFit: 'contain', borderRadius: '4px' }} />
                   ) : (
                     <div style={{ padding: '1rem', background: 'var(--primary-bg)', border: '1px solid var(--border)', borderRadius: '4px' }}>
                       <a href={activePreview.fileUrl} download={activePreview.fileName} style={{ color: 'var(--accent)', textDecoration: 'none', fontWeight: 'bold' }}>📄 Download Attached File ({activePreview.fileName})</a>

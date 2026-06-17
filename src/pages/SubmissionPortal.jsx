@@ -135,9 +135,18 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (validate()) {
+      let finalFileUrl = fileUrl;
+      if (!finalFileUrl && file) {
+        finalFileUrl = await new Promise((resolve) => {
+          const reader = new FileReader();
+          reader.onload = (e) => resolve(e.target.result);
+          reader.readAsDataURL(file);
+        });
+      }
+
       // Create submission payload
       const submission = {
         id: `sub-${Date.now()}`,
@@ -149,7 +158,7 @@ export default function SubmissionPortal({ onSubmitSubmission, addToast }) {
         avatarUrl: formData.avatarUrl,
         content: formData.content,
         fileName: file.name,
-        fileUrl: fileUrl,
+        fileUrl: finalFileUrl,
         date: new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
         status: "Pending"
       };
