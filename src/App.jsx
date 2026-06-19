@@ -66,7 +66,7 @@ export default function App() {
           setArchive(archs || []);
         } catch (err) {
           console.error("Error loading data from Supabase:", err);
-          addToast("Database connection offline. Using local browser backup.", "error");
+          addToast(`Database connection offline: ${err.message || err.toString()}`, "error");
           loadFallback();
         }
       } else {
@@ -216,7 +216,7 @@ export default function App() {
           if (error) throw error;
         } catch (err) {
           console.error("Error writing submission to Supabase:", err);
-          addToast("Database error. Saved to local backup only.", "error");
+          addToast(`Database error: ${err.message || 'Saved to local backup only.'}`, "error");
         }
       }
     }
